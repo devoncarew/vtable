@@ -13,4 +13,5 @@ jobs:
     if: ${{ github.repository_owner == 'devoncarew' }}
     uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main
     permissions:
+      id-token: write
       pull-requests: write
