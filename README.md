@@ -1,4 +1,6 @@
 [![Dart](https://github.com/devoncarew/vtable/actions/workflows/ci.yaml/badge.svg)](https://github.com/devoncarew/vtable/actions/workflows/ci.yaml)
+[![pub package](https://img.shields.io/pub/v/vtable.svg)](https://pub.dev/packages/vtable)
+[![package publisher](https://img.shields.io/pub/publisher/vtable.svg)](https://pub.dev/packages/vtable/publisher)
 
 A Flutter table widget featuring virtualization, sorting, and custom cell
 rendering.

@@ -2,7 +2,7 @@ name: vtable
 description: >-
   A Flutter table widget featuring virtualization, sorting, and custom cell
   rendering.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/devoncarew/vtable
 
 environment:
