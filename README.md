@@ -1,3 +1,4 @@
+[![Dart](https://github.com/devoncarew/vtable/actions/workflows/ci.yaml/badge.svg)](https://github.com/devoncarew/vtable/actions/workflows/ci.yaml)
 
 A Flutter table widget featuring virtualization, sorting, and custom cell
 rendering.
