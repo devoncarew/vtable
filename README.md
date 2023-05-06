@@ -57,5 +57,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-See also the ![main.dart](example/main.dart) example and the package's
-[API](https://pub.dev/documentation/vtable/latest/) documentation.
+See also the
+[main.dart](https://github.com/devoncarew/vtable/blob/main/example/main.dart)
+example and the package's [API](https://pub.dev/documentation/vtable/latest/)
+documentation.
