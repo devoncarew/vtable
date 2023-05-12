@@ -4,7 +4,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:vtable/src/copy_action.dart';
 import 'package:vtable/vtable.dart';
 
 void main() {
@@ -55,9 +54,7 @@ class _ExampleAppState extends State<ExampleApp> {
       items: widget.items,
       tableDescription: '${widget.items.length} items',
       startsSorted: true,
-      actions: const [
-        CopyToClipboardAction<SampleRowData>(),
-      ],
+      includeCopyToClipboardAction: true,
       columns: [
         VTableColumn(
           label: 'ID',

@@ -2,28 +2,99 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:vtable/src/copy_action.dart';
 
 import 'src/theme.dart';
 
+/// A callback to react to row taps.
 typedef ItemTapHandler<T> = void Function(T object);
-typedef OnSelectionChanged<T> = void Function(T? object);
 
+/// A callback to react to table row selection changes.
+typedef OnSelectionChanged<T> = void Function(T? selectedItem);
+
+/// A Flutter table widget featuring virtualization, sorting, and custom cell
+/// rendering.
 class VTable<T> extends StatefulWidget {
   static const double _rowHeight = 42;
   static const double _vertPadding = 4;
   static const double _horizPadding = 8;
 
+  /// The list of data rows for the table.
   final List<T> items;
+
+  /// The list of columns to display for the table.
   final List<VTableColumn<T>> columns;
+
+  /// Whether the table should initially sort the rows.
   final bool startsSorted;
+
+  /// Whether this table should track and render row selection.
   final bool supportsSelection;
+
+  /// A callback used to react to a double tap on a table row.
   final ItemTapHandler<T>? onDoubleTap;
+
+  /// A callback used to react to table selection changes.
   final OnSelectionChanged<T>? onSelectionChanged;
+
+  /// A optional description of the table.
+  ///
+  /// If provided, this is displayed in the far left side of the table's
+  /// toolbar. E.g., `'234 items'`.
   final String? tableDescription;
+
+  /// An optional set of widgets to display in the left side of the table's
+  /// toolbar.
+  ///
+  /// This is often used as a place to put filter related widgets.
   final List<Widget> filterWidgets;
+
+  /// An optional set of widgets to display in the right side of the table's
+  /// toolbar.
+  ///
+  /// This is often used as a place to display additional table actions.
   final List<Widget> actions;
+
+  /// The delay to use for table tooltips.
+  ///
+  /// Tooltips are used to display any validation results from a column's
+  /// validators.
   final Duration tooltipDelay;
 
+  /// Whether to include a 'copy to clipboard' action in the toolbar.
+  ///
+  /// If included, this action will copy the table's contents as CSV to the
+  /// system clipboard.
+  final bool includeCopyToClipboardAction;
+
+  /// Construct a new `VTable` instance.
+  ///
+  /// E.g:
+  ///
+  /// ```
+  /// Widget build(BuildContext context) {
+  ///   return VTable<SampleRowData>(
+  ///     items: listOfItems,
+  ///     columns: [
+  ///       VTableColumn(
+  ///         label: 'Planet',
+  ///         width: 120,
+  ///         grow: 0.6,
+  ///         transformFunction: (row) => row.name,
+  ///       ),
+  ///       VTableColumn(
+  ///         label: 'Gravity',
+  ///         width: 100,
+  ///         grow: 0.3,
+  ///         transformFunction: (row) => row.gravity.toStringAsFixed(1),
+  ///         alignment: Alignment.centerRight,
+  ///         compareFunction: (a, b) => a.gravity.compareTo(b.gravity),
+  ///         validators: [SampleRowData.validateGravity],
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   const VTable({
     required this.items,
     required this.columns,
@@ -35,6 +106,7 @@ class VTable<T> extends StatefulWidget {
     this.filterWidgets = const [],
     this.actions = const [],
     this.tooltipDelay = defaultTooltipDelay,
+    this.includeCopyToClipboardAction = false,
     Key? key,
   }) : super(key: key);
 
@@ -115,6 +187,17 @@ class _VTableState<T> extends State<VTable<T>> {
   }
 
   Padding createActionRow(BuildContext context) {
+    final extraActions = [];
+
+    if (widget.includeCopyToClipboardAction) {
+      if (widget.actions.isNotEmpty) {
+        extraActions.add(
+            const SizedBox(height: toolbarHeight, child: VerticalDivider()));
+      }
+
+      extraActions.add(CopyToClipboardAction<T>());
+    }
+
     return Padding(
       padding: const EdgeInsets.only(
         left: 8,
@@ -129,6 +212,7 @@ class _VTableState<T> extends State<VTable<T>> {
           ...widget.filterWidgets,
           const Expanded(child: SizedBox(width: 8)),
           ...widget.actions,
+          ...extraActions,
         ],
       ),
     );
@@ -338,28 +422,61 @@ class _ColumnHeader extends StatelessWidget {
   }
 }
 
+/// A callback to render a data object (`T`) to a widget.
 typedef RenderFunction<T> = Widget? Function(
     BuildContext context, T object, String out);
+
+/// A callback to render a data object to a string.
 typedef TransformFunction<T> = String Function(T object);
+
+/// A callback to apply style to a cell based on a data object's properties.
 typedef StyleFunction<T> = TextStyle? Function(T object);
+
+/// A callback to compare two table row data objects.
 typedef CompareFunction<T> = int Function(T a, T b);
+
+/// A callback to apply validation to a table cell.
+///
+/// See [ValidationResult] for the possible return values.
 typedef ValidationFunction<T> = ValidationResult? Function(T object);
 
-// todo: does this need to be public?
-
+/// The definition of a table's column.
 class VTableColumn<T> {
+  /// The title of a column.
   final String label;
-  final int width;
+
+  /// An icon for the column; if provided, this will be displayed instead of the
+  /// column's title.
   final IconData? icon;
+
+  /// The desired width of a column in pixels.
+  final int width;
+
+  /// The grow of a column; this is used to allocate excess table width between
+  /// columns.
   final double grow;
+
+  /// The alignment for a column's contents; this will default to
+  /// [Alignment.centerLeft].
   final Alignment? alignment;
 
+  /// A callback to convert a cell's contents to a string; if not provided, this
+  /// will default to calling `toString` on the row object.
   final TransformFunction<T>? transformFunction;
+
+  /// A callback to allow for custom styling of a cell (bold, italic, ...).
   final StyleFunction<T>? styleFunction;
+
+  /// A callback to compare two row objects; this is used when sorting rows.
   final CompareFunction<T>? compareFunction;
+
+  /// A set of validators for cell contents.
   final List<ValidationFunction<T>> validators;
+
+  /// A callback to support converting a data object to a custom widget.
   final RenderFunction<T>? renderFunction;
 
+  /// Construct a new [VTableColumn intance.
   VTableColumn({
     required this.label,
     required this.width,
@@ -422,6 +539,7 @@ class VTableColumn<T> {
   }
 }
 
+/// The possible severity results for cell validation.
 enum Severity {
   info,
   note,
@@ -429,8 +547,10 @@ enum Severity {
   error,
 }
 
-// todo: docs
-
+/// A cell validation result; this includes both the severity and a custom
+/// message.
+///
+/// E.g., `ValidationResult('gravity too high', Severity.warning)`.
 class ValidationResult {
   final String message;
   final Severity severity;

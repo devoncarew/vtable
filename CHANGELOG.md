@@ -1,3 +1,8 @@
+## 0.2.0
+
+* Add a `includeCopyToClipboardAction` flag.
+* Add dartdocs.
+
 ## 0.1.1
 
 * Update markdown badges for the first publish.
