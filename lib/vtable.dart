@@ -15,7 +15,6 @@ typedef OnSelectionChanged<T> = void Function(T? selectedItem);
 /// A Flutter table widget featuring virtualization, sorting, and custom cell
 /// rendering.
 class VTable<T> extends StatefulWidget {
-  static const double _rowHeight = 42;
   static const double _vertPadding = 4;
   static const double _horizPadding = 8;
 
@@ -60,6 +59,9 @@ class VTable<T> extends StatefulWidget {
   /// Tooltips are used to display any validation results from a column's
   /// validators.
   final Duration tooltipDelay;
+
+  /// The height to use for table rows.
+  final double rowHeight;
 
   /// Whether to include a 'copy to clipboard' action in the toolbar.
   ///
@@ -106,6 +108,7 @@ class VTable<T> extends StatefulWidget {
     this.filterWidgets = const [],
     this.actions = const [],
     this.tooltipDelay = defaultTooltipDelay,
+    this.rowHeight = defaultRowHeight,
     this.includeCopyToClipboardAction = false,
     Key? key,
   }) : super(key: key);
@@ -199,12 +202,7 @@ class _VTableState<T> extends State<VTable<T>> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 8,
-        top: 16,
-        // right: 8,
-        // bottom: 8,
-      ),
+      padding: const EdgeInsets.only(left: 8, top: 16),
       child: Row(
         children: [
           Text(widget.tableDescription ?? ''),
@@ -230,6 +228,7 @@ class _VTableState<T> extends State<VTable<T>> {
               title: column.label,
               icon: column.icon,
               width: colWidths[column],
+              height: widget.rowHeight,
               alignment: column.alignment,
               sortAscending: column == sortColumn ? sortAscending : null,
             ),
@@ -246,7 +245,7 @@ class _VTableState<T> extends State<VTable<T>> {
     return ListView.builder(
       controller: scrollController,
       itemCount: sortedItems.length,
-      itemExtent: VTable._rowHeight,
+      itemExtent: widget.rowHeight,
       itemBuilder: (BuildContext context, int index) {
         T item = sortedItems[index];
         final selected = item == selectedItem.value;
@@ -264,7 +263,7 @@ class _VTableState<T> extends State<VTable<T>> {
                     Padding(
                       padding: const EdgeInsets.only(top: 1, right: 1),
                       child: SizedBox(
-                        height: VTable._rowHeight - 1,
+                        height: widget.rowHeight - 1,
                         width: colWidths[column]! - 1,
                         child: Tooltip(
                           message: column.validate(item)?.message ?? '',
@@ -329,7 +328,6 @@ class _VTableState<T> extends State<VTable<T>> {
         if (col.grow > 0) {
           var inc = width * (col.grow / totalGrow);
           widths[col] = widths[col]! + inc;
-          // width -= inc;
         }
       }
     }
@@ -359,6 +357,7 @@ class _VTableState<T> extends State<VTable<T>> {
 class _ColumnHeader extends StatelessWidget {
   final String title;
   final double? width;
+  final double? height;
   final IconData? icon;
   final Alignment? alignment;
   final bool? sortAscending;
@@ -366,6 +365,7 @@ class _ColumnHeader extends StatelessWidget {
   const _ColumnHeader({
     required this.title,
     required this.width,
+    required this.height,
     this.icon,
     this.alignment,
     this.sortAscending,
@@ -377,8 +377,8 @@ class _ColumnHeader extends StatelessWidget {
     var swapSortIconSized = alignment != null && alignment!.x > 0;
 
     return SizedBox(
-      height: VTable._rowHeight,
       width: width,
+      height: height,
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: VTable._horizPadding,

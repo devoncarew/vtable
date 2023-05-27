@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Make the row height configurable; add a `VTable.rowHeight` parameter.
+
 ## 0.2.0
 
 * Add a `includeCopyToClipboardAction` flag.
