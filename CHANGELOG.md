@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Make the row height configurable.
+
 ## 0.2.0
 
 * Add a `includeCopyToClipboardAction` flag.
