@@ -1,6 +1,6 @@
-## 0.2.1
+## 0.3.0
 
-* Make the row height configurable.
+* Make the row height configurable; add a `VTable.rowHeight` parameter.
 
 ## 0.2.0
 
