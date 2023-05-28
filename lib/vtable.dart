@@ -178,7 +178,7 @@ class _VTableState<T> extends State<VTable<T>> {
                 children: [
                   createHeaderRow(colWidths),
                   Expanded(
-                    child: createRowsListView(colWidths),
+                    child: createRowsListView(context, colWidths),
                   ),
                 ],
               );
@@ -237,9 +237,13 @@ class _VTableState<T> extends State<VTable<T>> {
     );
   }
 
-  ListView createRowsListView(Map<VTableColumn<dynamic>, double> colWidths) {
+  ListView createRowsListView(
+    BuildContext context,
+    Map<VTableColumn<dynamic>, double> colWidths,
+  ) {
+    final theme = Theme.of(context);
     final rowSeparator = BoxDecoration(
-      border: Border(top: BorderSide(color: Colors.grey.shade300)),
+      border: Border(top: BorderSide(color: theme.dividerColor)),
     );
 
     return ListView.builder(
