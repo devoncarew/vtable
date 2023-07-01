@@ -69,6 +69,12 @@ class VTable<T> extends StatefulWidget {
   /// system clipboard.
   final bool includeCopyToClipboardAction;
 
+  /// Whether to show column headers.
+  final bool showHeaders;
+
+  /// Whether to show a table toolbar.
+  final bool showToolbar;
+
   /// Construct a new `VTable` instance.
   ///
   /// E.g:
@@ -110,6 +116,8 @@ class VTable<T> extends StatefulWidget {
     this.tooltipDelay = defaultTooltipDelay,
     this.rowHeight = defaultRowHeight,
     this.includeCopyToClipboardAction = false,
+    this.showHeaders = true,
+    this.showToolbar = true,
     Key? key,
   }) : super(key: key);
 
@@ -167,8 +175,8 @@ class _VTableState<T> extends State<VTable<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        createActionRow(context),
-        const Divider(),
+        if (widget.showToolbar) createActionRow(context),
+        if (widget.showToolbar) const Divider(),
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -176,7 +184,7 @@ class _VTableState<T> extends State<VTable<T>> {
 
               return Column(
                 children: [
-                  createHeaderRow(colWidths),
+                  if (widget.showHeaders) createHeaderRow(colWidths),
                   Expanded(
                     child: createRowsListView(context, colWidths),
                   ),
@@ -246,6 +254,9 @@ class _VTableState<T> extends State<VTable<T>> {
       border: Border(top: BorderSide(color: theme.dividerColor)),
     );
 
+    final colorScheme = theme.colorScheme;
+    final darkMode = colorScheme.brightness == Brightness.dark;
+
     return ListView.builder(
       controller: scrollController,
       itemCount: sortedItems.length,
@@ -260,7 +271,9 @@ class _VTableState<T> extends State<VTable<T>> {
             onTap: () => _select(item),
             onDoubleTap: () => _doubleTap(item),
             child: DecoratedBox(
-              decoration: rowSeparator,
+              decoration: (widget.showHeaders || index != 0)
+                  ? rowSeparator
+                  : const BoxDecoration(),
               child: Row(
                 children: [
                   for (var column in columns)
@@ -278,7 +291,9 @@ class _VTableState<T> extends State<VTable<T>> {
                               horizontal: VTable._horizPadding,
                               vertical: VTable._vertPadding,
                             ),
-                            color: column.validate(item)?.colorForSeverity,
+                            color: column
+                                .validate(item)
+                                ?.colorForSeverity(darkMode: darkMode),
                             child: column.widgetFor(context, item),
                           ),
                         ),
@@ -573,16 +588,29 @@ class ValidationResult {
   factory ValidationResult.info(String message) =>
       ValidationResult(message, Severity.info);
 
-  Color get colorForSeverity {
-    switch (severity) {
-      case Severity.info:
-        return Colors.grey.shade400.withAlpha(127);
-      case Severity.note:
-        return Colors.blue.shade200.withAlpha(127);
-      case Severity.warning:
-        return Colors.yellow.shade200.withAlpha(127);
-      case Severity.error:
-        return Colors.red.shade300.withAlpha(127);
+  Color colorForSeverity({bool darkMode = true}) {
+    if (darkMode) {
+      switch (severity) {
+        case Severity.info:
+          return Colors.grey.shade400;
+        case Severity.note:
+          return Colors.blue.shade400;
+        case Severity.warning:
+          return Colors.yellow.shade700;
+        case Severity.error:
+          return Colors.red.shade400;
+      }
+    } else {
+      switch (severity) {
+        case Severity.info:
+          return Colors.grey.shade400.withAlpha(127);
+        case Severity.note:
+          return Colors.blue.shade200.withAlpha(127);
+        case Severity.warning:
+          return Colors.yellow.shade200.withAlpha(127);
+        case Severity.error:
+          return Colors.red.shade300.withAlpha(127);
+      }
     }
   }
 

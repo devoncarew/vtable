@@ -1,3 +1,9 @@
+## 0.4.0
+
+ * Add a `showHeaders` parameter to `VTable`.
+ * Add a `showToolbar` parameter to `VTable`.
+ * Improve the display of the table in dark themes.
+
 ## 0.3.1
 
 * Use the `Theme.dividerColor` color to separate rows.
